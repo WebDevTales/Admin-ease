@@ -1,0 +1,2648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Blog Card Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        :root {
+            --primary-color: #e63946;
+            --secondary-color: #f1faee;
+            --accent-color: #a8dadc;
+            --dark-color: #1d3557;
+            --light-color: #f8f9fa;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --border-radius: 12px;
+            --glass-opacity: 0.2;
+            --glass-blur: 10px;
+            --neumorphic-shadow: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            height: 100vh;
+            box-shadow: var(--shadow);
+            background-color: white;
+            position: relative;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--dark-color);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .premium-badge {
+            background: linear-gradient(135deg, gold 0%, #ffd700 100%);
+            color: #333;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-panel, .preview-panel {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .editor-panel {
+            border-right: 2px solid #eee;
+            background-color: var(--light-color);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .panel-header h2 {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background-color: #eee;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background-color: #ddd;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(230, 57, 70, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: var(--dark-color);
+            transform: scale(1.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background-color: #c1121f;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--dark-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #14213d;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .preset-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .preset-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            background-color: white;
+        }
+
+        .preset-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .preset-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            padding: 2rem;
+        }
+
+        /* Advanced Blog Card Styles */
+        .blog-card {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* Card Design 1: Floating Layers */
+        .card-design-1 {
+            perspective: 1000px;
+        }
+
+        .card-design-1 .card-image {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            transform: translateZ(20px);
+        }
+
+        .card-design-1 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .card-design-1 .card-content {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 2;
+            background: white;
+            margin-top: -30px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateZ(10px);
+        }
+
+        .card-design-1 .card-category {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+            transform: translateZ(30px);
+        }
+
+        .card-design-1 .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+            transform: translateZ(20px);
+        }
+
+        .card-design-1 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+            transform: translateZ(10px);
+        }
+
+        .card-design-1 .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            transform: translateZ(5px);
+        }
+
+        /* Card Design 2: Neumorphic */
+        .card-design-2 {
+            background: #f0f0f0;
+            box-shadow: var(--neumorphic-shadow);
+            border: none;
+        }
+
+        .card-design-2 .card-image {
+            height: 200px;
+            overflow: hidden;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .card-design-2 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-2 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-2 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-2 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        .card-design-2 .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Card Design 3: Glass Morphism */
+        .card-design-3 {
+            background: rgba(255, 255, 255, var(--glass-opacity));
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-design-3 .card-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .card-design-3 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-3 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-3 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-design-3 .card-excerpt {
+            color: #555;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-design-3 .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Card Design 4: Split Personality */
+        .card-design-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: 0;
+            padding: 0;
+            overflow: visible;
+        }
+
+        .card-design-4 .card-image {
+            grid-column: 1 / 3;
+            grid-row: 1 / 3;
+            height: 200px;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .card-design-4 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-4 .card-content {
+            grid-column: 1 / 3;
+            grid-row: 2 / 4;
+            background: white;
+            padding: 1.5rem;
+            margin: 100px 15px 15px 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            z-index: 2;
+        }
+
+        .card-design-4 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-4 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 5: 3D Fold */
+        .card-design-5 {
+            perspective: 1500px;
+            transform-style: preserve-3d;
+        }
+
+        .card-design-5 .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.75, 0, 0.85, 1);
+        }
+
+        .card-design-5 .card-front,
+        .card-design-5 .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: white;
+        }
+
+        .card-design-5 .card-back {
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card-design-5 .card-image {
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .card-design-5 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-5 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-5 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-5 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 6: Floating Elements */
+        .card-design-6 {
+            position: relative;
+            overflow: visible;
+        }
+
+        .card-design-6 .card-image {
+            height: 180px;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            margin: 0 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            z-index: 2;
+            position: relative;
+        }
+
+        .card-design-6 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-6 .card-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-top: -30px;
+            position: relative;
+            z-index: 1;
+            box-shadow: var(--shadow);
+        }
+
+        .card-design-6 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-6 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 7: Asymmetrical */
+        .card-design-7 {
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% 80%,
+                80% 100%,
+                0 100%
+            );
+            background: white;
+        }
+
+        .card-design-7 .card-image {
+            height: 200px;
+            overflow: hidden;
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% 80%,
+                80% 100%,
+                0 100%
+            );
+        }
+
+        .card-design-7 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-7 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-7 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-7 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 8: Layered Parallax */
+        .card-design-8 {
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .card-design-8 .card-parallax {
+            position: relative;
+            height: 300px;
+        }
+
+        .card-design-8 .card-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .card-design-8 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translateZ(0);
+        }
+
+        .card-design-8 .card-content {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 1.5rem;
+            margin-top: -50px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-design-8 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-8 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 9: Holographic */
+        .card-design-9 {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.4) 100%);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .card-design-9::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(230, 57, 70, 0.1),
+                rgba(230, 57, 70, 0.1),
+                rgba(29, 53, 87, 0.3),
+                rgba(230, 57, 70, 0.1),
+                rgba(230, 57, 70, 0.1)
+            );
+            transform: rotate(30deg);
+            z-index: 0;
+            animation: holographic 8s linear infinite;
+        }
+
+        @keyframes holographic {
+            0% { transform: rotate(30deg) translateX(0) translateY(0); }
+            100% { transform: rotate(30deg) translateX(-50%) translateY(-50%); }
+        }
+
+        .card-design-9 .card-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-design-9 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-9 .card-content {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.7);
+        }
+
+        .card-design-9 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-9 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 10: Interactive Puzzle */
+        .card-design-10 {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-design-10 .card-puzzle {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            height: 250px;
+            position: relative;
+        }
+
+        .card-design-10 .puzzle-piece {
+            background-size: cover;
+            background-position: center;
+            border: 1px solid white;
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .card-design-10 .puzzle-piece:hover {
+            opacity: 1;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .card-design-10 .card-content {
+            padding: 1.5rem;
+            background: white;
+        }
+
+        .card-design-10 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-10 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 11: Dynamic Gradient */
+        .card-design-11 {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-color) 100%);
+            color: white;
+        }
+
+        .card-design-11 .card-image {
+            height: 200px;
+            overflow: hidden;
+            mix-blend-mode: overlay;
+            opacity: 0.7;
+        }
+
+        .card-design-11 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-11 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-11 .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card-design-11 .card-excerpt {
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Card Design 12: Floating Border */
+        .card-design-12 {
+            position: relative;
+            background: white;
+        }
+
+        .card-design-12::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid var(--primary-color);
+            border-radius: calc(var(--border-radius) - 5px);
+            z-index: 0;
+            transition: all 0.3s ease;
+        }
+
+        .card-design-12 .card-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            margin: 15px;
+            border-radius: calc(var(--border-radius) - 5px);
+        }
+
+        .card-design-12 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-12 .card-content {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-design-12 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-12 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 13: Floating Elements */
+        .card-design-13 {
+            position: relative;
+        }
+
+        .card-design-13 .floating-element {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .card-design-13 .floating-element:nth-child(1) {
+            top: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .card-design-13 .floating-element:nth-child(2) {
+            bottom: 30px;
+            right: -10px;
+            width: 60px;
+            height: 60px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        .card-design-13 .card-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .card-design-13 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-13 .card-content {
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+            background: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+
+        /* Card Design 14: Cut Corner */
+        .card-design-14 {
+            position: relative;
+            background: white;
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% calc(100% - 30px),
+                calc(100% - 30px) 100%,
+                0 100%
+            );
+        }
+
+        .card-design-14 .card-image {
+            height: 200px;
+            overflow: hidden;
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% calc(100% - 30px),
+                calc(100% - 30px) 100%,
+                0 100%
+            );
+        }
+
+        .card-design-14 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-14 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-14 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-14 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Card Design 15: Floating Shadow */
+        .card-design-15 {
+            position: relative;
+            background: white;
+            border-radius: var(--border-radius);
+        }
+
+        .card-design-15::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border-radius: var(--border-radius);
+            background: var(--primary-color);
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .card-design-15:hover::before {
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .card-design-15 .card-image {
+            height: 200px;
+            overflow: hidden;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .card-design-15 .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-design-15 .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-design-15 .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        .card-design-15 .card-excerpt {
+            color: #666;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        /* Hover Effects */
+        .hover-effect-1:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .hover-effect-2:hover {
+            box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);
+            background: linear-gradient(135deg, white 0%, #f8f9fa 100%);
+        }
+
+        .hover-effect-3 {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hover-effect-3::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 4px;
+            background-color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .hover-effect-3:hover::before {
+            left: 0;
+        }
+
+        .hover-effect-4:hover {
+            transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+        }
+
+        .hover-effect-5:hover {
+            animation: pulse 1.5s infinite;
+        }
+
+        .hover-effect-6:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .hover-effect-7 {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-effect-7:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .hover-effect-8 {
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .hover-effect-8:hover {
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .hover-effect-9 {
+            transition: all 0.3s ease;
+        }
+
+        .hover-effect-9:hover {
+            border-color: var(--primary-color);
+        }
+
+        .hover-effect-10 {
+            transition: all 0.4s ease;
+        }
+
+        .hover-effect-10:hover {
+            transform: translateY(-8px) rotate(1deg);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Border Animation Effects */
+        .border-animation-top::before {
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 4px;
+        }
+
+        .border-animation-bottom::before {
+            bottom: 0;
+            left: -100%;
+            width: 100%;
+            height: 4px;
+        }
+
+        .border-animation-left::before {
+            top: -100%;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .border-animation-right::before {
+            top: -100%;
+            right: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .border-animation-all {
+            position: relative;
+        }
+
+        .border-animation-all::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .border-animation-all:hover::before {
+            animation: borderAnimation 1.5s infinite linear;
+        }
+
+        @keyframes borderAnimation {
+            0% {
+                top: 0;
+                left: 0;
+                right: 100%;
+                bottom: 100%;
+                border-color: var(--primary-color);
+                border-right-color: transparent;
+                border-bottom-color: transparent;
+            }
+            25% {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 100%;
+                border-color: var(--primary-color);
+                border-bottom-color: transparent;
+            }
+            50% {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-color: var(--primary-color);
+            }
+            75% {
+                top: 100%;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-color: var(--primary-color);
+                border-top-color: transparent;
+            }
+            100% {
+                top: 100%;
+                left: 100%;
+                right: 0;
+                bottom: 0;
+                border-color: var(--primary-color);
+                border-top-color: transparent;
+                border-left-color: transparent;
+            }
+        }
+
+        /* Additional Elements */
+        .read-more-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .read-more-btn:hover {
+            background-color: #c1121f;
+            transform: translateY(-2px);
+        }
+
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .author-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .read-time {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* Suboptions */
+        .suboptions {
+            display: none;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .suboptions.active {
+            display: block;
+        }
+
+        /* Fullscreen mode */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            max-width: none;
+            height: 100vh;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem;
+            cursor: pointer;
+            z-index: 1001;
+            transition: var(--transition);
+        }
+
+        .fullscreen-btn:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        /* Code highlighting */
+        .code-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .code-toolbar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 1;
+        }
+
+        .copy-btn {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.6rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        pre {
+            border-radius: 8px;
+            padding: 1.5rem !important;
+            margin-top: 0;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            z-index: 10000;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .editor-panel {
+                border-right: none;
+                border-bottom: 2px solid #eee;
+            }
+            
+            .preview-container {
+                padding: 1rem;
+            }
+
+            .preset-cards {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .preset-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tabs {
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .tab {
+                min-width: 70px;
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+        }
+
+        /* Animation classes */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c1121f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main-container">
+        <header class="header">
+            <h1>Ultimate Blog Card Generator</h1>
+            <div class="premium-badge">
+                <i class="fas fa-crown"></i>
+                <span>PREMIUM EDITION</span>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <h2>Design Settings</h2>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" data-tab="content">Content</button>
+                    <button class="tab" data-tab="design">Design</button>
+                    <button class="tab" data-tab="effects">Effects</button>
+                    <button class="tab" data-tab="code">Code</button>
+                </div>
+                
+                <div class="tab-content active" id="content-tab">
+                    <div class="form-group">
+                        <label for="card-title">Card Title</label>
+                        <input type="text" id="card-title" class="form-control" value="The Future of Web Development">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-excerpt">Card Excerpt</label>
+                        <textarea id="card-excerpt" class="form-control">Discover the latest trends and technologies shaping the future of web development in 2023 and beyond. From AI integration to Web3, the landscape is evolving rapidly.</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-category">Category</label>
+                        <input type="text" id="card-category" class="form-control" value="Technology">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-author">Author Name</label>
+                        <input type="text" id="card-author" class="form-control" value="Jane Smith">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="card-date">Publish Date</label>
+                        <input type="text" id="card-date" class="form-control" value="May 15, 2023">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="read-time">Read Time</label>
+                        <input type="text" id="read-time" class="form-control" value="5 min read">
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="add-read-more" class="form-control">
+                        <label for="add-read-more">Add Read More Button</label>
+                    </div>
+                    
+                    <div class="suboptions" id="read-more-options">
+                        <div class="form-group">
+                            <label for="read-more-text">Button Text</label>
+                            <input type="text" id="read-more-text" class="form-control" value="Read More">
+                        </div>
+                        <div class="form-group">
+                            <label for="read-more-link">Button Link</label>
+                            <input type="text" id="read-more-link" class="form-control" value="https://example.com">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="design-tab">
+                    <div class="form-group">
+                        <label>Card Design</label>
+                        <div class="preset-cards">
+                            <div class="preset-card" data-design="1">
+                                <div class="preset-icon"><i class="fas fa-layer-group"></i></div>
+                                <div>Floating Layers</div>
+                            </div>
+                            <div class="preset-card" data-design="2">
+                                <div class="preset-icon"><i class="fas fa-square"></i></div>
+                                <div>Neumorphic</div>
+                            </div>
+                            <div class="preset-card" data-design="3">
+                                <div class="preset-icon"><i class="fas fa-glass-whiskey"></i></div>
+                                <div>Glass Morphism</div>
+                            </div>
+                            <div class="preset-card" data-design="4">
+                                <div class="preset-icon"><i class="fas fa-object-ungroup"></i></div>
+                                <div>Split Personality</div>
+                            </div>
+                            <div class="preset-card" data-design="5">
+                                <div class="preset-icon"><i class="fas fa-cube"></i></div>
+                                <div>3D Fold</div>
+                            </div>
+                            <div class="preset-card" data-design="6">
+                                <div class="preset-icon"><i class="fas fa-feather-alt"></i></div>
+                                <div>Floating Elements</div>
+                            </div>
+                            <div class="preset-card" data-design="7">
+                                <div class="preset-icon"><i class="fas fa-cut"></i></div>
+                                <div>Asymmetrical</div>
+                            </div>
+                            <div class="preset-card" data-design="8">
+                                <div class="preset-icon"><i class="fas fa-parachute-box"></i></div>
+                                <div>Layered Parallax</div>
+                            </div>
+                            <div class="preset-card" data-design="9">
+                                <div class="preset-icon"><i class="fas fa-atom"></i></div>
+                                <div>Holographic</div>
+                            </div>
+                            <div class="preset-card" data-design="10">
+                                <div class="preset-icon"><i class="fas fa-puzzle-piece"></i></div>
+                                <div>Interactive Puzzle</div>
+                            </div>
+                            <div class="preset-card" data-design="11">
+                                <div class="preset-icon"><i class="fas fa-palette"></i></div>
+                                <div>Dynamic Gradient</div>
+                            </div>
+                            <div class="preset-card" data-design="12">
+                                <div class="preset-icon"><i class="fas fa-border-style"></i></div>
+                                <div>Floating Border</div>
+                            </div>
+                            <div class="preset-card" data-design="13">
+                                <div class="preset-icon"><i class="fas fa-shapes"></i></div>
+                                <div>Floating Elements</div>
+                            </div>
+                            <div class="preset-card" data-design="14">
+                                <div class="preset-icon"><i class="fas fa-crop-alt"></i></div>
+                                <div>Cut Corner</div>
+                            </div>
+                            <div class="preset-card" data-design="15">
+                                <div class="preset-icon"><i class="fas fa-shadow"></i></div>
+                                <div>Floating Shadow</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Primary Color</label>
+                        <div class="color-picker">
+                            <div class="color-option selected" style="background-color: #e63946;" data-color="#e63946"></div>
+                            <div class="color-option" style="background-color: #3a86ff;" data-color="#3a86ff"></div>
+                            <div class="color-option" style="background-color: #8338ec;" data-color="#8338ec"></div>
+                            <div class="color-option" style="background-color: #ff006e;" data-color="#ff006e"></div>
+                            <div class="color-option" style="background-color: #fb5607;" data-color="#fb5607"></div>
+                            <div class="color-option" style="background-color: #2ec4b6;" data-color="#2ec4b6"></div>
+                            <div class="color-option" style="background-color: #ffbe0b;" data-color="#ffbe0b"></div>
+                            <div class="color-option" style="background-color: #9b5de5;" data-color="#9b5de5"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Image Source</label>
+                        <select id="image-source" class="form-control">
+                            <option value="placeholder">Placeholder Image</option>
+                            <option value="custom">Custom URL</option>
+                            <option value="unsplash">Unsplash (Tech)</option>
+                            <option value="unsplash-nature">Unsplash (Nature)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="custom-image-group" style="display: none;">
+                        <label for="custom-image-url">Custom Image URL</label>
+                        <input type="text" id="custom-image-url" class="form-control" placeholder="https://example.com/image.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Card Size</label>
+                        <select id="card-size" class="form-control">
+                            <option value="small">Small (300px)</option>
+                            <option value="medium" selected>Medium (400px)</option>
+                            <option value="large">Large (500px)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="effects-tab">
+                    <div class="form-group">
+                        <label>Hover Effect</label>
+                        <div class="preset-cards">
+                            <div class="preset-card" data-effect="1">
+                                <div class="preset-icon"><i class="fas fa-cube"></i></div>
+                                <div>3D Lift</div>
+                            </div>
+                            <div class="preset-card" data-effect="2">
+                                <div class="preset-icon"><i class="fas fa-fire"></i></div>
+                                <div>Gradient Glow</div>
+                            </div>
+                            <div class="preset-card" data-effect="3">
+                                <div class="preset-icon"><i class="fas fa-border-style"></i></div>
+                                <div>Border Animation</div>
+                            </div>
+                            <div class="preset-card" data-effect="4">
+                                <div class="preset-icon"><i class="fas fa-arrows-alt"></i></div>
+                                <div>Tilt Effect</div>
+                            </div>
+                            <div class="preset-card" data-effect="5">
+                                <div class="preset-icon"><i class="fas fa-heartbeat"></i></div>
+                                <div>Pulse</div>
+                            </div>
+                            <div class="preset-card" data-effect="6">
+                                <div class="preset-icon"><i class="fas fa-expand"></i></div>
+                                <div>Scale Up</div>
+                            </div>
+                            <div class="preset-card" data-effect="7">
+                                <div class="preset-icon"><i class="fas fa-arrow-up"></i></div>
+                                <div>Lift Up</div>
+                            </div>
+                            <div class="preset-card" data-effect="8">
+                                <div class="preset-icon"><i class="fas fa-boxes"></i></div>
+                                <div>Deep Shadow</div>
+                            </div>
+                            <div class="preset-card" data-effect="9">
+                                <div class="preset-icon"><i class="fas fa-border-all"></i></div>
+                                <div>Border Color</div>
+                            </div>
+                            <div class="preset-card" data-effect="10">
+                                <div class="preset-icon"><i class="fas fa-random"></i></div>
+                                <div>Complex Transform</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Border Animation</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="border-animation" class="form-control">
+                            <label for="border-animation">Enable Border Animation</label>
+                        </div>
+                        
+                        <div class="suboptions" id="border-animation-options">
+                            <div class="form-group">
+                                <label>Animation Side</label>
+                                <div class="btn-group">
+                                    <button class="btn border-side-btn active" data-side="top">Top</button>
+                                    <button class="btn border-side-btn" data-side="bottom">Bottom</button>
+                                    <button class="btn border-side-btn" data-side="left">Left</button>
+                                    <button class="btn border-side-btn" data-side="right">Right</button>
+                                    <button class="btn border-side-btn" data-side="all">All Sides</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Animation Color</label>
+                                <div class="color-picker">
+                                    <div class="color-option selected" style="background-color: #e63946;" data-color="#e63946"></div>
+                                    <div class="color-option" style="background-color: #3a86ff;" data-color="#3a86ff"></div>
+                                    <div class="color-option" style="background-color: #8338ec;" data-color="#8338ec"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Animations</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="animate-bounce" class="form-control">
+                            <label for="animate-bounce">Bounce Animation</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="animate-float" class="form-control">
+                            <label for="animate-float">Float Animation</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="animate-spin" class="form-control">
+                            <label for="animate-spin">Spin Animation</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Additional Effects</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="add-shadow" class="form-control" checked>
+                            <label for="add-shadow">Shadow Effect</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="add-border" class="form-control">
+                            <label for="add-border">Border</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="add-gradient" class="form-control">
+                            <label for="add-gradient">Gradient Background</label>
+                        </div>
+                        
+                        <div class="suboptions" id="gradient-options">
+                            <div class="form-group">
+                                <label>Gradient Type</label>
+                                <select id="gradient-type" class="form-control">
+                                    <option value="linear">Linear</option>
+                                    <option value="radial">Radial</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Gradient Direction</label>
+                                <select id="gradient-direction" class="form-control">
+                                    <option value="to right">To Right</option>
+                                    <option value="to left">To Left</option>
+                                    <option value="to bottom">To Bottom</option>
+                                    <option value="to top">To Top</option>
+                                    <option value="to bottom right">To Bottom Right</option>
+                                    <option value="to top left">To Top Left</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Gradient Colors</label>
+                                <div class="color-picker">
+                                    <div class="color-option selected" style="background-color: #e63946;" data-color="#e63946"></div>
+                                    <div class="color-option selected" style="background-color: #1d3557;" data-color="#1d3557"></div>
+                                    <div class="color-option" style="background-color: #3a86ff;" data-color="#3a86ff"></div>
+                                    <div class="color-option" style="background-color: #8338ec;" data-color="#8338ec"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Glass Morphism Settings</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="glass-effect" class="form-control">
+                            <label for="glass-effect">Enable Glass Effect</label>
+                        </div>
+                        
+                        <div class="suboptions" id="glass-options">
+                            <div class="form-group">
+                                <label for="glass-opacity">Opacity</label>
+                                <input type="range" id="glass-opacity" class="form-control" min="0.1" max="0.9" step="0.1" value="0.2">
+                            </div>
+                            <div class="form-group">
+                                <label for="glass-blur">Blur Amount</label>
+                                <input type="range" id="glass-blur" class="form-control" min="5" max="20" step="1" value="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="code-tab">
+                    <div class="form-group">
+                        <label>Generated HTML</label>
+                        <div class="code-container">
+                            <div class="code-toolbar">
+                                <button class="copy-btn" id="copy-html"><i class="fas fa-copy"></i> Copy HTML</button>
+                            </div>
+                            <pre><code class="language-html" id="html-code"></code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Generated CSS</label>
+                        <div class="code-container">
+                            <div class="code-toolbar">
+                                <button class="copy-btn" id="copy-css"><i class="fas fa-copy"></i> Copy CSS</button>
+                            </div>
+                            <pre><code class="language-css" id="css-code"></code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn" id="export-html"><i class="fas fa-file-code"></i> Export HTML</button>
+                        <button class="btn btn-secondary" id="export-image"><i class="fas fa-image"></i> Export Image</button>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="reset-btn"><i class="fas fa-redo"></i> Reset</button>
+                </div>
+            </div>
+            
+            <div class="preview-panel">
+                <div class="panel-header">
+                    <h2>Card Preview</h2>
+                    <button class="fullscreen-btn" id="fullscreen-btn"><i class="fas fa-expand"></i></button>
+                </div>
+                
+                <div class="preview-container">
+                    <div class="blog-card card-design-1 hover-effect-1" id="blog-card-preview">
+                        <div class="card-image">
+                            <img src="https://source.unsplash.com/random/600x400/?technology" alt="Blog post image">
+                        </div>
+                        <div class="card-content">
+                            <span class="card-category">Technology</span>
+                            <h3 class="card-title">The Future of Web Development</h3>
+                            <p class="card-excerpt">Discover the latest trends and technologies shaping the future of web development in 2023 and beyond. From AI integration to Web3, the landscape is evolving rapidly.</p>
+                            <div class="card-footer">
+                                <div class="card-author">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Author" class="author-avatar">
+                                    <span class="author-name">Jane Smith</span>
+                                </div>
+                                <span class="read-time">5 min read</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Copied to clipboard!</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab') || tab.textContent.toLowerCase().replace(' ', '-');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Update code when code tab is opened
+                    if (tabId === 'code') {
+                        updateCodePreview();
+                    }
+                });
+            });
+            
+            // Color picker functionality
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    // Check if this is part of a specific color picker group
+                    const isBorderColor = e.target.closest('#border-animation-options');
+                    const isGradientColor = e.target.closest('#gradient-options');
+                    
+                    if (isBorderColor) {
+                        // Handle border animation color selection
+                        document.querySelectorAll('#border-animation-options .color-option').forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                    } else if (isGradientColor) {
+                        // Handle gradient color selection (allow multiple)
+                        option.classList.toggle('selected');
+                    } else {
+                        // Handle primary color selection
+                        document.querySelectorAll('.color-picker:not(#gradient-options .color-picker) .color-option').forEach(opt => opt.classList.remove('selected'));
+                        option.classList.add('selected');
+                    }
+                    updateCard();
+                });
+            });
+            
+            // Design preset cards
+            const presetCards = document.querySelectorAll('.preset-card[data-design]');
+            presetCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const design = card.getAttribute('data-design');
+                    updateCardDesign(design);
+                });
+            });
+            
+            // Hover effect preset cards
+            const effectCards = document.querySelectorAll('.preset-card[data-effect]');
+            effectCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const effect = card.getAttribute('data-effect');
+                    updateHoverEffect(effect);
+                });
+            });
+            
+            // Border side buttons
+            const borderSideBtns = document.querySelectorAll('.border-side-btn');
+            borderSideBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    borderSideBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    updateCard();
+                });
+            });
+            
+            // Image source change
+            document.getElementById('image-source').addEventListener('change', function() {
+                const customImageGroup = document.getElementById('custom-image-group');
+                if (this.value === 'custom') {
+                    customImageGroup.style.display = 'block';
+                } else {
+                    customImageGroup.style.display = 'none';
+                }
+                updateCard();
+            });
+            
+            // Form inputs change
+            const formInputs = document.querySelectorAll('.form-control:not(#custom-image-url)');
+            formInputs.forEach(input => {
+                input.addEventListener('input', updateCard);
+            });
+            
+            // Checkboxes change
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Show/hide suboptions based on checkbox state
+                    if (this.id === 'add-read-more') {
+                        document.getElementById('read-more-options').classList.toggle('active', this.checked);
+                    } else if (this.id === 'border-animation') {
+                        document.getElementById('border-animation-options').classList.toggle('active', this.checked);
+                    } else if (this.id === 'add-gradient') {
+                        document.getElementById('gradient-options').classList.toggle('active', this.checked);
+                    } else if (this.id === 'glass-effect') {
+                        document.getElementById('glass-options').classList.toggle('active', this.checked);
+                    }
+                    updateCard();
+                });
+            });
+            
+            // Card size change
+            document.getElementById('card-size').addEventListener('change', updateCard);
+            
+            // Range inputs change
+            document.getElementById('glass-opacity').addEventListener('input', function() {
+                document.documentElement.style.setProperty('--glass-opacity', this.value);
+                updateCard();
+            });
+            
+            document.getElementById('glass-blur').addEventListener('input', function() {
+                document.documentElement.style.setProperty('--glass-blur', `${this.value}px`);
+                updateCard();
+            });
+            
+            // Reset button
+            document.getElementById('reset-btn').addEventListener('click', resetForm);
+            
+            // Fullscreen button
+            document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+            
+            // Copy buttons
+            document.getElementById('copy-html').addEventListener('click', () => copyToClipboard('html-code', 'HTML copied to clipboard!'));
+            document.getElementById('copy-css').addEventListener('click', () => copyToClipboard('css-code', 'CSS copied to clipboard!'));
+            
+            // Export buttons
+            document.getElementById('export-html').addEventListener('click', exportHTML);
+            document.getElementById('export-image').addEventListener('click', exportImage);
+            
+            // Initialize card
+            updateCard();
+            
+            // Initialize code highlighting
+            hljs.highlightAll();
+            
+            function updateCardDesign(design) {
+                const card = document.getElementById('blog-card-preview');
+                // Remove all design classes
+                for (let i = 1; i <= 15; i++) {
+                    card.classList.remove(`card-design-${i}`);
+                }
+                // Add selected design class
+                card.classList.add(`card-design-${design}`);
+                
+                // Special handling for 3D Fold card
+                if (design === '5') {
+                    const cardInner = document.createElement('div');
+                    cardInner.className = 'card-inner';
+                    cardInner.innerHTML = `
+                        <div class="card-front">
+                            ${card.innerHTML}
+                        </div>
+                        <div class="card-back">
+                            <h3>${document.getElementById('card-title').value}</h3>
+                            <p>Click to read more about this article</p>
+                        </div>
+                    `;
+                    card.innerHTML = '';
+                    card.appendChild(cardInner);
+                    
+                    // Add click event for 3D flip
+                    card.addEventListener('click', function() {
+                        this.querySelector('.card-inner').style.transform = this.querySelector('.card-inner').style.transform === 'rotateY(180deg)' ? 'rotateY(0deg)' : 'rotateY(180deg)';
+                    });
+                } else if (design === '10') {
+                    // Special handling for Interactive Puzzle card
+                    const imageUrl = document.querySelector('.card-image img')?.src || 'https://source.unsplash.com/random/600x400/?technology';
+                    const puzzleHTML = `
+                        <div class="card-puzzle">
+                            ${Array(16).fill(0).map((_, i) => 
+                                `<div class="puzzle-piece" style="background-image: url('${imageUrl}'); 
+                                    background-position: ${(i % 4) * -100 + 150}% ${Math.floor(i / 4) * -100 + 150}%"></div>`
+                            ).join('')}
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">${document.getElementById('card-title').value}</h3>
+                            <p class="card-excerpt">${document.getElementById('card-excerpt').value}</p>
+                        </div>
+                    `;
+                    card.innerHTML = puzzleHTML;
+                } else {
+                    // Reset to standard card structure for other designs
+                    const title = document.getElementById('card-title').value;
+                    const excerpt = document.getElementById('card-excerpt').value;
+                    const category = document.getElementById('card-category').value;
+                    const author = document.getElementById('card-author').value;
+                    const readTime = document.getElementById('read-time').value;
+                    const imageUrl = document.querySelector('.card-image img')?.src || 'https://source.unsplash.com/random/600x400/?technology';
+                    
+                    card.innerHTML = `
+                        <div class="card-image">
+                            <img src="${imageUrl}" alt="${title}">
+                        </div>
+                        <div class="card-content">
+                            ${category ? `<span class="card-category">${category}</span>` : ''}
+                            <h3 class="card-title">${title}</h3>
+                            <p class="card-excerpt">${excerpt}</p>
+                            ${document.getElementById('add-read-more').checked ? 
+                                `<a href="${document.getElementById('read-more-link').value}" class="read-more-btn">${document.getElementById('read-more-text').value}</a>` : ''}
+                            <div class="card-footer">
+                                <div class="card-author">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="${author}" class="author-avatar">
+                                    <span class="author-name">${author}</span>
+                                </div>
+                                <span class="read-time">${readTime}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                updateCard();
+            }
+            
+            function updateHoverEffect(effect) {
+                const card = document.getElementById('blog-card-preview');
+                // Remove all effect classes
+                for (let i = 1; i <= 10; i++) {
+                    card.classList.remove(`hover-effect-${i}`);
+                }
+                // Add selected effect class
+                card.classList.add(`hover-effect-${effect}`);
+                updateCard();
+            }
+            
+            function updateCard() {
+                const card = document.getElementById('blog-card-preview');
+                const title = document.getElementById('card-title').value;
+                const excerpt = document.getElementById('card-excerpt').value;
+                const category = document.getElementById('card-category').value;
+                const author = document.getElementById('card-author').value;
+                const date = document.getElementById('card-date').value;
+                const readTime = document.getElementById('read-time').value;
+                const selectedColor = document.querySelector('.color-picker:not(#gradient-options .color-picker) .color-option.selected')?.getAttribute('data-color') || '#e63946';
+                
+                // Update content for standard card designs (not puzzle or 3D)
+                if (!card.classList.contains('card-design-5') && !card.classList.contains('card-design-10')) {
+                    if (card.querySelector('.card-title')) card.querySelector('.card-title').textContent = title;
+                    if (card.querySelector('.card-excerpt')) card.querySelector('.card-excerpt').textContent = excerpt;
+                    if (card.querySelector('.card-category')) card.querySelector('.card-category').textContent = category;
+                    if (card.querySelector('.author-name')) card.querySelector('.author-name').textContent = author;
+                    if (card.querySelector('.card-date')) card.querySelector('.card-date').textContent = date;
+                    if (card.querySelector('.read-time')) card.querySelector('.read-time').textContent = readTime;
+                    
+                    // Update read more button if exists
+                    if (document.getElementById('add-read-more').checked) {
+                        let readMoreBtn = card.querySelector('.read-more-btn');
+                        if (!readMoreBtn) {
+                            readMoreBtn = document.createElement('a');
+                            readMoreBtn.className = 'read-more-btn';
+                            card.querySelector('.card-content').appendChild(readMoreBtn);
+                        }
+                        readMoreBtn.textContent = document.getElementById('read-more-text').value;
+                        readMoreBtn.href = document.getElementById('read-more-link').value;
+                    } else {
+                        const readMoreBtn = card.querySelector('.read-more-btn');
+                        if (readMoreBtn) readMoreBtn.remove();
+                    }
+                }
+                
+                // Update image for standard designs
+                if (!card.classList.contains('card-design-10')) {
+                    const imageSource = document.getElementById('image-source').value;
+                    let imageUrl = '';
+                    
+                    if (imageSource === 'custom') {
+                        imageUrl = document.getElementById('custom-image-url').value || 'https://source.unsplash.com/random/600x400/?technology';
+                    } else if (imageSource === 'unsplash') {
+                        imageUrl = 'https://source.unsplash.com/random/600x400/?technology';
+                    } else if (imageSource === 'unsplash-nature') {
+                        imageUrl = 'https://source.unsplash.com/random/600x400/?nature';
+                    } else {
+                        imageUrl = 'https://source.unsplash.com/random/600x400/?technology';
+                    }
+                    
+                    if (card.querySelector('.card-image img')) {
+                        card.querySelector('.card-image img').src = imageUrl;
+                        card.querySelector('.card-image img').alt = title;
+                    }
+                    
+                    // Update puzzle pieces if puzzle design
+                    if (card.classList.contains('card-design-10')) {
+                        const puzzlePieces = card.querySelectorAll('.puzzle-piece');
+                        puzzlePieces.forEach(piece => {
+                            piece.style.backgroundImage = `url('${imageUrl}')`;
+                        });
+                    }
+                }
+                
+                // Update colors
+                document.documentElement.style.setProperty('--primary-color', selectedColor);
+                
+                // Update animations
+                const animateBounce = document.getElementById('animate-bounce').checked;
+                const animateFloat = document.getElementById('animate-float').checked;
+                const animateSpin = document.getElementById('animate-spin').checked;
+                
+                card.classList.toggle('animate-bounce', animateBounce);
+                card.classList.toggle('animate-float', animateFloat);
+                card.classList.toggle('animate-spin', animateSpin);
+                
+                // Update size
+                const size = document.getElementById('card-size').value;
+                if (size === 'small') {
+                    card.style.width = '300px';
+                } else if (size === 'medium') {
+                    card.style.width = '400px';
+                } else if (size === 'large') {
+                    card.style.width = '500px';
+                }
+                
+                // Update shadow
+                const addShadow = document.getElementById('add-shadow').checked;
+                if (addShadow) {
+                    card.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                } else {
+                    card.style.boxShadow = 'none';
+                }
+                
+                // Update border
+                const addBorder = document.getElementById('add-border').checked;
+                if (addBorder) {
+                    card.style.border = '2px solid var(--primary-color)';
+                } else {
+                    card.style.border = 'none';
+                }
+                
+                // Update gradient
+                const addGradient = document.getElementById('add-gradient').checked;
+                if (addGradient) {
+                    const gradientType = document.getElementById('gradient-type').value;
+                    const gradientDirection = document.getElementById('gradient-direction').value;
+                    const gradientColors = Array.from(document.querySelectorAll('#gradient-options .color-option.selected'))
+                        .map(opt => opt.getAttribute('data-color'))
+                        .join(', ');
+                    
+                    if (gradientType === 'linear') {
+                        card.style.background = `linear-gradient(${gradientDirection}, ${gradientColors})`;
+                    } else {
+                        card.style.background = `radial-gradient(${gradientColors})`;
+                    }
+                    
+                    if (card.querySelector('.card-content')) {
+                        card.querySelector('.card-content').style.color = 'white';
+                    }
+                } else {
+                    card.style.background = '';
+                    if (card.querySelector('.card-content')) {
+                        card.querySelector('.card-content').style.color = '';
+                    }
+                }
+                
+                // Update border animation
+                const borderAnimation = document.getElementById('border-animation').checked;
+                if (borderAnimation) {
+                    const selectedSide = document.querySelector('.border-side-btn.active').getAttribute('data-side');
+                    const borderColor = document.querySelector('#border-animation-options .color-option.selected').getAttribute('data-color');
+                    
+                    // Remove all border animation classes
+                    card.classList.remove('border-animation-top', 'border-animation-bottom', 'border-animation-left', 'border-animation-right', 'border-animation-all');
+                    
+                    if (selectedSide === 'all') {
+                        card.classList.add('border-animation-all');
+                        card.style.setProperty('--primary-color', borderColor);
+                    } else {
+                        card.classList.add(`border-animation-${selectedSide}`);
+                        const pseudoElement = card.querySelector('::before') || card;
+                        pseudoElement.style.backgroundColor = borderColor;
+                    }
+                } else {
+                    card.classList.remove('border-animation-top', 'border-animation-bottom', 'border-animation-left', 'border-animation-right', 'border-animation-all');
+                }
+                
+                // Update glass effect
+                const glassEffect = document.getElementById('glass-effect').checked;
+                if (glassEffect) {
+                    card.classList.add('card-design-3');
+                } else if (!card.classList.contains('card-design-3')) {
+                    card.classList.remove('card-design-3');
+                }
+            }
+            
+            function resetForm() {
+                // Reset form inputs
+                document.getElementById('card-title').value = 'The Future of Web Development';
+                document.getElementById('card-excerpt').value = 'Discover the latest trends and technologies shaping the future of web development in 2023 and beyond. From AI integration to Web3, the landscape is evolving rapidly.';
+                document.getElementById('card-category').value = 'Technology';
+                document.getElementById('card-author').value = 'Jane Smith';
+                document.getElementById('card-date').value = 'May 15, 2023';
+                document.getElementById('read-time').value = '5 min read';
+                
+                // Reset design
+                document.querySelector('.color-picker:not(#gradient-options .color-picker) .color-option[data-color="#e63946"]').click();
+                document.getElementById('image-source').value = 'placeholder';
+                document.getElementById('custom-image-group').style.display = 'none';
+                document.getElementById('card-size').value = 'medium';
+                
+                // Reset effects
+                document.querySelector('.preset-card[data-effect="1"]').click();
+                document.querySelector('.preset-card[data-design="1"]').click();
+                document.getElementById('animate-bounce').checked = false;
+                document.getElementById('animate-float').checked = false;
+                document.getElementById('animate-spin').checked = false;
+                document.getElementById('add-shadow').checked = true;
+                document.getElementById('add-border').checked = false;
+                document.getElementById('add-gradient').checked = false;
+                document.getElementById('glass-effect').checked = false;
+                document.getElementById('border-animation').checked = false;
+                document.getElementById('add-read-more').checked = false;
+                
+                // Reset suboptions
+                document.getElementById('read-more-options').classList.remove('active');
+                document.getElementById('border-animation-options').classList.remove('active');
+                document.getElementById('gradient-options').classList.remove('active');
+                document.getElementById('glass-options').classList.remove('active');
+                
+                // Reset gradient colors
+                document.querySelectorAll('#gradient-options .color-option').forEach((opt, i) => {
+                    if (i < 2) opt.classList.add('selected');
+                    else opt.classList.remove('selected');
+                });
+                
+                // Reset border animation to top
+                document.querySelector('.border-side-btn[data-side="top"]').click();
+                
+                updateCard();
+            }
+            
+            function toggleFullscreen() {
+                const container = document.getElementById('main-container');
+                const fullscreenBtn = document.getElementById('fullscreen-btn');
+                
+                if (!document.fullscreenElement) {
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        container.webkitRequestFullscreen();
+                    } else if (container.msRequestFullscreen) {
+                        container.msRequestFullscreen();
+                    }
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                }
+            }
+            
+            function updateCodePreview() {
+                const card = document.getElementById('blog-card-preview');
+                const htmlCode = card.outerHTML;
+                
+                // Get computed styles for the card
+                const styles = window.getComputedStyle(card);
+                let cssCode = `.blog-card {\n`;
+                
+                // Add relevant CSS properties
+                cssCode += `  width: ${styles.width};\n`;
+                cssCode += `  background-color: ${styles.backgroundColor};\n`;
+                cssCode += `  border-radius: ${styles.borderRadius};\n`;
+                cssCode += `  box-shadow: ${styles.boxShadow};\n`;
+                cssCode += `  border: ${styles.border};\n`;
+                cssCode += `  transition: ${styles.transition};\n`;
+                
+                // Add hover effects if any
+                const hoverEffect = Array.from(card.classList).find(cls => cls.startsWith('hover-effect-'));
+                if (hoverEffect) {
+                    const effectNum = hoverEffect.split('-')[2];
+                    cssCode += `}\n\n.blog-card:hover {\n`;
+                    
+                    switch(effectNum) {
+                        case '1':
+                            cssCode += `  transform: translateY(-10px) rotateX(5deg) rotateY(5deg);\n`;
+                            cssCode += `  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);\n`;
+                            break;
+                        case '2':
+                            cssCode += `  box-shadow: 0 0 20px rgba(230, 57, 70, 0.5);\n`;
+                            cssCode += `  background: linear-gradient(135deg, white 0%, #f8f9fa 100%);\n`;
+                            break;
+                        case '3':
+                            cssCode += `}\n\n.blog-card::before {\n`;
+                            cssCode += `  content: '';\n`;
+                            cssCode += `  position: absolute;\n`;
+                            cssCode += `  top: 0;\n`;
+                            cssCode += `  left: -100%;\n`;
+                            cssCode += `  width: 100%;\n`;
+                            cssCode += `  height: 4px;\n`;
+                            cssCode += `  background-color: var(--primary-color);\n`;
+                            cssCode += `  transition: all 0.3s ease;\n`;
+                            cssCode += `}\n\n.blog-card:hover::before {\n`;
+                            cssCode += `  left: 0;\n`;
+                            break;
+                        case '4':
+                            cssCode += `  transform: perspective(1000px) rotateX(5deg) rotateY(5deg);\n`;
+                            break;
+                        case '5':
+                            cssCode += `  animation: pulse 1.5s infinite;\n`;
+                            cssCode += `}\n\n@keyframes pulse {\n`;
+                            cssCode += `  0% { transform: scale(1); }\n`;
+                            cssCode += `  50% { transform: scale(1.03); }\n`;
+                            cssCode += `  100% { transform: scale(1); }\n`;
+                            break;
+                        case '6':
+                            cssCode += `  transform: scale(1.02);\n`;
+                            cssCode += `  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);\n`;
+                            break;
+                        case '7':
+                            cssCode += `  transform: translateY(-5px);\n`;
+                            cssCode += `  box-shadow: 0 15px 20px rgba(0, 0, 0, 0.1);\n`;
+                            break;
+                        case '8':
+                            cssCode += `  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.08);\n`;
+                            break;
+                        case '9':
+                            cssCode += `  border-color: var(--primary-color);\n`;
+                            break;
+                        case '10':
+                            cssCode += `  transform: translateY(-8px) rotate(1deg);\n`;
+                            cssCode += `  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);\n`;
+                            break;
+                    }
+                }
+                
+                // Add border animation if enabled
+                if (document.getElementById('border-animation').checked) {
+                    const selectedSide = document.querySelector('.border-side-btn.active').getAttribute('data-side');
+                    const borderColor = document.querySelector('#border-animation-options .color-option.selected').getAttribute('data-color');
+                    
+                    if (selectedSide === 'all') {
+                        cssCode += `}\n\n.blog-card::before {\n`;
+                        cssCode += `  content: '';\n`;
+                        cssCode += `  position: absolute;\n`;
+                        cssCode += `  top: 0;\n`;
+                        cssCode += `  left: 0;\n`;
+                        cssCode += `  right: 0;\n`;
+                        cssCode += `  bottom: 0;\n`;
+                        cssCode += `  border: 2px solid transparent;\n`;
+                        cssCode += `  border-radius: var(--border-radius);\n`;
+                        cssCode += `  z-index: 1;\n`;
+                        cssCode += `  pointer-events: none;\n`;
+                        cssCode += `}\n\n.blog-card:hover::before {\n`;
+                        cssCode += `  animation: borderAnimation 1.5s infinite linear;\n`;
+                        cssCode += `}\n\n@keyframes borderAnimation {\n`;
+                        cssCode += `  0% {\n`;
+                        cssCode += `    top: 0;\n`;
+                        cssCode += `    left: 0;\n`;
+                        cssCode += `    right: 100%;\n`;
+                        cssCode += `    bottom: 100%;\n`;
+                        cssCode += `    border-color: ${borderColor};\n`;
+                        cssCode += `    border-right-color: transparent;\n`;
+                        cssCode += `    border-bottom-color: transparent;\n`;
+                        cssCode += `  }\n`;
+                        cssCode += `  25% {\n`;
+                        cssCode += `    top: 0;\n`;
+                        cssCode += `    left: 0;\n`;
+                        cssCode += `    right: 0;\n`;
+                        cssCode += `    bottom: 100%;\n`;
+                        cssCode += `    border-color: ${borderColor};\n`;
+                        cssCode += `    border-bottom-color: transparent;\n`;
+                        cssCode += `  }\n`;
+                        cssCode += `  50% {\n`;
+                        cssCode += `    top: 0;\n`;
+                        cssCode += `    left: 0;\n`;
+                        cssCode += `    right: 0;\n`;
+                        cssCode += `    bottom: 0;\n`;
+                        cssCode += `    border-color: ${borderColor};\n`;
+                        cssCode += `  }\n`;
+                        cssCode += `  75% {\n`;
+                        cssCode += `    top: 100%;\n`;
+                        cssCode += `    left: 0;\n`;
+                        cssCode += `    right: 0;\n`;
+                        cssCode += `    bottom: 0;\n`;
+                        cssCode += `    border-color: ${borderColor};\n`;
+                        cssCode += `    border-top-color: transparent;\n`;
+                        cssCode += `  }\n`;
+                        cssCode += `  100% {\n`;
+                        cssCode += `    top: 100%;\n`;
+                        cssCode += `    left: 100%;\n`;
+                        cssCode += `    right: 0;\n`;
+                        cssCode += `    bottom: 0;\n`;
+                        cssCode += `    border-color: ${borderColor};\n`;
+                        cssCode += `    border-top-color: transparent;\n`;
+                        cssCode += `    border-left-color: transparent;\n`;
+                        cssCode += `  }\n`;
+                        cssCode += `}`;
+                    } else {
+                        cssCode += `}\n\n.blog-card::before {\n`;
+                        cssCode += `  content: '';\n`;
+                        cssCode += `  position: absolute;\n`;
+                        
+                        if (selectedSide === 'top') {
+                            cssCode += `  top: 0;\n`;
+                            cssCode += `  left: -100%;\n`;
+                            cssCode += `  width: 100%;\n`;
+                            cssCode += `  height: 4px;\n`;
+                        } else if (selectedSide === 'bottom') {
+                            cssCode += `  bottom: 0;\n`;
+                            cssCode += `  left: -100%;\n`;
+                            cssCode += `  width: 100%;\n`;
+                            cssCode += `  height: 4px;\n`;
+                        } else if (selectedSide === 'left') {
+                            cssCode += `  top: -100%;\n`;
+                            cssCode += `  left: 0;\n`;
+                            cssCode += `  width: 4px;\n`;
+                            cssCode += `  height: 100%;\n`;
+                        } else if (selectedSide === 'right') {
+                            cssCode += `  top: -100%;\n`;
+                            cssCode += `  right: 0;\n`;
+                            cssCode += `  width: 4px;\n`;
+                            cssCode += `  height: 100%;\n`;
+                        }
+                        
+                        cssCode += `  background-color: ${borderColor};\n`;
+                        cssCode += `  transition: all 0.3s ease;\n`;
+                        cssCode += `}\n\n.blog-card:hover::before {\n`;
+                        
+                        if (selectedSide === 'top' || selectedSide === 'bottom') {
+                            cssCode += `  left: 0;\n`;
+                        } else {
+                            cssCode += `  top: 0;\n`;
+                        }
+                    }
+                }
+                
+                // Add animation classes if checked
+                if (document.getElementById('animate-bounce').checked) {
+                    cssCode += `\n\n.animate-bounce {\n`;
+                    cssCode += `  animation: bounce 2s infinite;\n`;
+                    cssCode += `}\n\n@keyframes bounce {\n`;
+                    cssCode += `  0%, 100% { transform: translateY(0); }\n`;
+                    cssCode += `  50% { transform: translateY(-10px); }\n`;
+                    cssCode += `}`;
+                }
+                
+                if (document.getElementById('animate-float').checked) {
+                    cssCode += `\n\n.animate-float {\n`;
+                    cssCode += `  animation: float 3s ease-in-out infinite;\n`;
+                    cssCode += `}\n\n@keyframes float {\n`;
+                    cssCode += `  0%, 100% { transform: translateY(0); }\n`;
+                    cssCode += `  50% { transform: translateY(-15px); }\n`;
+                    cssCode += `}`;
+                }
+                
+                if (document.getElementById('animate-spin').checked) {
+                    cssCode += `\n\n.animate-spin {\n`;
+                    cssCode += `  animation: spin 4s linear infinite;\n`;
+                    cssCode += `}\n\n@keyframes spin {\n`;
+                    cssCode += `  0% { transform: rotate(0deg); }\n`;
+                    cssCode += `  100% { transform: rotate(360deg); }\n`;
+                    cssCode += `}`;
+                }
+                
+                // Add glass effect if enabled
+                if (document.getElementById('glass-effect').checked) {
+                    const opacity = document.getElementById('glass-opacity').value;
+                    const blur = document.getElementById('glass-blur').value;
+                    
+                    cssCode += `\n\n.glass-effect {\n`;
+                    cssCode += `  background: rgba(255, 255, 255, ${opacity});\n`;
+                    cssCode += `  backdrop-filter: blur(${blur}px);\n`;
+                    cssCode += `  -webkit-backdrop-filter: blur(${blur}px);\n`;
+                    cssCode += `  border: 1px solid rgba(255, 255, 255, 0.3);\n`;
+                    cssCode += `  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);\n`;
+                    cssCode += `}`;
+                }
+                
+                // Add gradient if enabled
+                if (document.getElementById('add-gradient').checked) {
+                    const gradientType = document.getElementById('gradient-type').value;
+                    const gradientDirection = document.getElementById('gradient-direction').value;
+                    const gradientColors = Array.from(document.querySelectorAll('#gradient-options .color-option.selected'))
+                        .map(opt => opt.getAttribute('data-color'))
+                        .join(', ');
+                    
+                    if (gradientType === 'linear') {
+                        cssCode += `\n\n.gradient-bg {\n`;
+                        cssCode += `  background: linear-gradient(${gradientDirection}, ${gradientColors});\n`;
+                        cssCode += `}`;
+                    } else {
+                        cssCode += `\n\n.gradient-bg {\n`;
+                        cssCode += `  background: radial-gradient(${gradientColors});\n`;
+                        cssCode += `}`;
+                    }
+                }
+                
+                // Update code display
+                document.getElementById('html-code').textContent = htmlCode;
+                document.getElementById('css-code').textContent = cssCode;
+                hljs.highlightAll();
+            }
+            
+            function copyToClipboard(elementId, message) {
+                const element = document.getElementById(elementId);
+                const text = element.textContent;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification(message || 'Copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    showNotification('Failed to copy!', 'error');
+                });
+            }
+            
+            function exportHTML() {
+                const card = document.getElementById('blog-card-preview');
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${document.getElementById('card-title').value}</title>
+    <style>
+        ${document.getElementById('css-code').textContent}
+    </style>
+</head>
+<body>
+    ${card.outerHTML}
+</body>
+</html>`;
+                
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'blog-card.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showNotification('HTML exported successfully!');
+            }
+            
+            function exportImage() {
+                const card = document.getElementById('blog-card-preview');
+                
+                html2canvas(card, {
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'blog-card.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    showNotification('Image exported successfully!');
+                }).catch(err => {
+                    console.error('Error exporting image:', err);
+                    showNotification('Error exporting image!', 'error');
+                });
+            }
+            
+            function showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                const notificationText = document.getElementById('notification-text');
+                
+                notificationText.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
